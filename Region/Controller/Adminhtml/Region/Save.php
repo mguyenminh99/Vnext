@@ -35,26 +35,33 @@ class Save extends Action
         ];
 
         $student = $this->regionFactory->create();
+        
         if ($id) {
             $student->load($id);
-            $this->getMessageManager()->addSuccessMessage(__('Edit thành công'));
-        } 
-        try{
             if(empty($student->getCollection()->addFieldToFilter('default_name', ['eq' => $data['default_name']])->getData())){
                 $student->addData($newData);
                 $student->save();
-                return $this->resultRedirect->create()->setPath('region/region/index');
-            }else{
+            }
+            $this->getMessageManager()->addSuccessMessage(__('Edit thành công'));
+            return $this->resultRedirect->create()->setPath('region/region/index');
+
+        } else {
+            if(!empty($student->getCollection()->addFieldToFilter('default_name', ['eq' => $data['default_name']])->getData())){
                 $this->getMessageManager()->addErrorMessage(__('Default Name đã tồn tại '));
                 return $this->resultRedirect->create()->setPath('region/region/new');
+
+            }else{
                 $student->getCollection()->getSelect()->reset(\Magento\Framework\DB\Select::WHERE);
-                if(empty($student->getCollection()->addFieldToFilter('code' , ['eq' => $data['code']])->addFieldToFilter('country_id' , ['eq' => $data['country_id']])->getData())){
+                if(!empty($student->getCollection()->addFieldToFilter('code' , ['eq' => $data['code']])->addFieldToFilter('country_id' , ['eq' => $data['country_id']])->getData())){
                     $this->getMessageManager()->addErrorMessage(__('Code đã tồn tại tại country '));
                     return $this->resultRedirect->create()->setPath('region/region/new');
+                }else{
+                    $student->addData($newData);
+                    $student->save();
+                    $this->getMessageManager()->addSuccessMessage(__('Tạo mới thành công'));
+                    return $this->resultRedirect->create()->setPath('region/region/index');
                 }
             }
-        }catch (\Exception $e){
-            $this->getMessageManager()->addErrorMessage(__('Save thất bại.'));
         }
     }
 }
