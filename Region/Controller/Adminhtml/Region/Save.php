@@ -43,7 +43,6 @@ class Save extends Action
             if(empty($student->getCollection()->addFieldToFilter('default_name', ['eq' => $data['default_name']])->getData())){
                 $student->addData($newData);
                 $student->save();
-                $this->getMessageManager()->addSuccessMessage(__('Tạo mới thành công'));
                 return $this->resultRedirect->create()->setPath('region/region/index');
             }else{
                 $this->getMessageManager()->addErrorMessage(__('Default Name đã tồn tại '));
